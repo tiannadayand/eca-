@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mzansi Market</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Global styles for animations */
+    @keyframes fade-in-down {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in-up {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    .animate-fade-in-down { animation: fade-in-down 0.6s ease-out forwards; }
+    .animate-fade-in-up { animation: fade-in-up 0.6s ease-out 0.2s forwards; opacity:0; }
+    .will-animate-fade-in-up { opacity:0; }
+    .animate-fade-in { animation: fade-in 0.6s ease-out 0.4s forwards; opacity:0; }
+    .will-animate-fade-in { opacity:0; }
+    .animate-fade-in-slow { animation: fade-in 1s ease-out 0.6s forwards; opacity:0; }
+    .will-animate-fade-in-slow { opacity:0; }
+
+    .truncate-2-lines {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    .page-content { display: none; }
+    .page-content.active { display: block; }
+
+    /* Custom spinner style */
+    .loader {
+      border: 4px solid #f3f3f3; /* Light grey */
+      border-top: 4px solid #4f46e5; /* Indigo */
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    .loader-sm {
+        width: 16px;
+        height: 16px;
+        border-width: 2px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.4.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div id="logo" class="text-2xl font-bold text-indigo-600 cursor-pointer">
+        Mzansi Market
+      </div>
+      <nav id="main-nav" class="space-x-4">
+        <button data-page="home" class="nav-link text-slate-600 hover:text-indigo-600 font-medium px-3 py-2 rounded-md text-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500">Home</button>
+        <button data-page="browse" class="nav-link text-slate-600 hover:text-indigo-600 font-medium px-3 py-2 rounded-md text-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500">Browse</button>
+        <button data-page="sell" class="nav-link text-slate-600 hover:text-indigo-600 font-medium px-3 py-2 rounded-md text-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500">Sell Item</button>
+        <button data-page="admin" class="nav-link text-slate-600 hover:text-indigo-600 font-medium px-3 py-2 rounded-md text-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500">Admin</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <!-- Home Page Content -->
+    <section id="home-page" class="page-content text-center py-12 px-4">
+      <h1 class="text-5xl font-extrabold text-indigo-700 mb-6 animate-fade-in-down">
+        Welcome to Mzansi Market!
+      </h1>
+      <p class="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in-up will-animate-fade-in-up">
+        Your vibrant C2C marketplace to discover unique items from fellow South Africans, or to easily sell your own. 
+        Inspired by the need for local e-commerce solutions, Mzansi Market brings buyers and sellers together.
+      </p>
+      <div class="space-y-4 sm:space-y-0 sm:space-x-6 flex flex-col sm:flex-row justify-center items-center animate-fade-in will-animate-fade-in">
+        <button id="home-browse-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
+          Browse Products
+        </button>
+        <button id="home-sell-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
+          Sell Your Item
+        </button>
+      </div>
+      <div class="mt-16 p-8 bg-white rounded-xl shadow-2xl max-w-3xl mx-auto animate-fade-in-slow will-animate-fade-in-slow">
+        <h2 class="text-3xl font-semibold text-indigo-600 mb-4">Why Mzansi Market?</h2>
+        <ul class="list-disc list-inside text-left text-slate-700 space-y-2">
+          <li><strong>Local Focus:</strong> Connecting buyers and sellers within South Africa.</li>
+          <li><strong>Easy Listing:</strong> Quickly list your items with our simple form, plus helpful description suggestions!</li>
+          <li><strong>Discover Treasures:</strong> Find unique pre-loved items, handmade goods, and more.</li>
+          <li><strong>Community Driven:</strong> Support local individuals and foster a circular economy.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Browse Page Content -->
+    <section id="browse-page" class="page-content container mx-auto py-8 px-4">
+      <h1 class="text-4xl font-bold text-slate-800 mb-8 text-center">Discover Products</h1>
+      <div class="mb-8 p-6 bg-white rounded-xl shadow-lg flex flex-col sm:flex-row gap-4 items-center">
+        <input 
+          type="text" 
+          id="search-term"
+          placeholder="Search products..." 
+          class="w-full sm:flex-grow px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+          aria-label="Search products"
+        />
+        <select 
+          id="category-filter"
+          class="w-full sm:w-auto px-4 py-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+          aria-label="Filter by category"
+        >
+          {/* Options will be populated by JS */}
+        </select>
+      </div>
+      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {/* Product cards will be injected here by JS */}
+      </div>
+      <p id="no-products-message" class="text-center text-slate-600 text-xl py-10" style="display: none;" aria-live="polite"></p>
+    </section>
+
+    <!-- Sell Page Content -->
+    <section id="sell-page" class="page-content container mx-auto py-8 px-4">
+      <form id="product-form" class="space-y-6 bg-white p-8 rounded-xl shadow-xl max-w-2xl mx-auto" aria-labelledby="sell-form-title">
+        <h2 id="sell-form-title" class="text-3xl font-bold text-center text-indigo-600 mb-6">List Your Item</h2>
+        
+        <div id="form-error-message" class="text-red-500 bg-red-100 p-3 rounded-md text-sm" style="display: none;" role="alert"></div>
+
+        <div>
+          <label for="product-name" class="block text-sm font-medium text-slate-700 mb-1">Product Name <span class="text-red-500">*</span></label>
+          <input type="text" name="name" id="product-name" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" required aria-required="true" />
+        </div>
+
+        <div>
+          <label for="product-category" class="block text-sm font-medium text-slate-700 mb-1">Category <span class="text-red-500">*</span></label>
+          <select name="category" id="product-category" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" required aria-required="true">
+              <option value="">Select a category</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Home Goods">Home Goods</option>
+              <option value="Collectibles">Collectibles</option>
+              <option value="Sports & Outdoors">Sports & Outdoors</option>
+              <option value="Books">Books</option>
+              <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="product-price" class="block text-sm font-medium text-slate-700 mb-1">Price (R) <span class="text-red-500">*</span></label>
+          <input type="number" name="price" id="product-price" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" step="0.01" min="0" required aria-required="true" />
+        </div>
+
+        <div>
+          <label for="product-imageUrl" class="block text-sm font-medium text-slate-700 mb-1">Image URL (Optional)</label>
+          <input type="url" name="imageUrl" id="product-imageUrl" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="https://example.com/image.jpg" />
+          <p class="text-xs text-slate-500 mt-1">If left blank, a placeholder image will be used.</p>
+        </div>
+        
+        <div>
+          <label for="product-keywords" class="block text-sm font-medium text-slate-700 mb-1">Keywords (for Description Suggestion)</label>
+          <input type="text" name="keywords" id="product-keywords" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="e.g., vintage, handmade, eco-friendly" />
+        </div>
+
+        <div class="relative">
+          <label for="product-description" class="block text-sm font-medium text-slate-700 mb-1">Description <span class="text-red-500">*</span></label>
+          <textarea name="description" id="product-description" rows="5" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out resize-y" required aria-required="true"></textarea>
+          <button 
+            type="button" 
+            id="generate-description-btn"
+            class="absolute bottom-3 right-3 bg-teal-500 hover:bg-teal-600 text-white text-xs font-semibold py-1 px-2 rounded-md transition duration-150 ease-in-out flex items-center disabled:opacity-50"
+            aria-label="Suggest product description using AI"
+          >
+            {/* Spinner and text will be managed by JS */}
+            Suggest Description
+          </button>
+        </div>
+
+        <button 
+          type="submit" 
+          id="list-item-btn"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70"
+        >
+          List Item
+        </button>
+      </form>
+    </section>
+
+    <!-- Admin Page Content -->
+    <section id="admin-page" class="page-content container mx-auto py-8 px-4" aria-labelledby="admin-page-title">
+      <h1 id="admin-page-title" class="text-4xl font-bold text-slate-800 mb-8 text-center">Admin - Manage Products</h1>
+      <p id="no-admin-products-message" class="text-center text-slate-600 text-xl" style="display:none;">No products available to manage.</p>
+      <div id="admin-product-table-container" class="bg-white shadow-xl rounded-xl overflow-x-auto">
+        <table class="w-full min-w-max text-left" aria-label="Products table">
+          <thead class="bg-slate-100">
+            <tr>
+              <th scope="col" class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Image</th>
+              <th scope="col" class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Name</th>
+              <th scope="col" class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Category</th>
+              <th scope="col" class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Price</th>
+              <th scope="col" class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Seller</th>
+              <th scope="col" class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-products-tbody" class="divide-y divide-slate-200">
+            {/* Product rows will be injected here by JS */}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-800 text-slate-300 text-center p-6 mt-auto">
+    <p>&copy; <span id="current-year"></span> Mzansi Market. All rights reserved.</p>
+    <p class="text-sm mt-1">Inspired by the Eduvos Initial Project brief.</p>
+  </footer>
+
+  <!-- Product Detail Modal -->
+  <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[100]" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="modal-content" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+      <button 
+        id="modal-close-btn"
+        class="absolute top-3 right-3 text-slate-500 hover:text-slate-700 text-2xl font-bold"
+        aria-label="Close modal"
+      >
+        &times;
+      </button>
+      <h2 id="modal-title" class="text-2xl font-semibold text-slate-800 mb-4"></h2>
+      <div id="modal-body" class="space-y-4">
+        <img id="modal-image" src="" alt="" class="w-full h-64 object-cover rounded-lg shadow-md" />
+        <p id="modal-description" class="text-slate-700 text-sm leading-relaxed"></p>
+        <p id="modal-price" class="text-2xl font-bold text-indigo-600"></p>
+        <p id="modal-seller" class="text-sm text-slate-500"></p>
+        <p id="modal-category" class="text-sm text-slate-500"></p>
+        <button 
+          id="modal-contact-seller-btn"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+        >
+          Contact Seller
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
